@@ -10,21 +10,23 @@ import UIKit
 
 class ViewController: UIViewController, UITableViewDelegate, UISearchBarDelegate, UITableViewDataSource {
     
-    var allnotes = [eachNote]() //holds a bunch of strings where eachNote is a string
-    var eachnoteString: String = " Nonsense Placeholder Texts"
     
+    var allnotes = [String]() //holds a bunch of strings where eachNote is a string
+    var note = ""
+    var isNoteSaved = false
     var items = [UIBarButtonItem]()
     
     @IBOutlet var notesLabel: UILabel!
     @IBOutlet var searchBar: UISearchBar!
     @IBOutlet var tableview: UITableView!
     
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .refresh, target: self, action: #selector(reloadpage))
+        resetDefaults()
         
+        tableview.delegate = self
+        tableview.dataSource = self
         //BUTTONS:
         
         //todo: find the eclipsis button?
@@ -63,55 +65,66 @@ class ViewController: UIViewController, UITableViewDelegate, UISearchBarDelegate
             
             tableview.topAnchor.constraint(equalTo: searchBar.bottomAnchor, constant: 0),
             tableview.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 0),
-            tableview.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: 0)
-            
+            tableview.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: 0),
+            tableview.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: 0)
         ])
         
-//        // load string into eachnoteString
-//        if let savedString = UserDefaults.standard.object(forKey: "noteswritten") as? Data {
-//            let jsondecoder = JSONDecoder()
-//
-//            do{
-//                eachnoteString = try jsondecoder.decode(String.self, from: savedString)
-//            }catch{
-//                fatalError("something went wrong")
-//            }
-//        }
-//
-//
-//        //load from userDefaults of tableView
-//        let defaults = UserDefaults.standard
-//
-//        if let savedNotes = defaults.object(forKey: "allNotes") as? Data{
-//            let jsonDecoder = JSONDecoder()
-//
-//            do{
-//                allnotes = try jsonDecoder.decode([eachNote].self, from: savedNotes as Data)
-//            } catch {
-//                print("unable to load each note")
-//            }
-//        }
-      
+        
+        //load from allnotes
+        let defaults = UserDefaults.standard
+        
+        if let savednote = defaults.object(forKey: "allNotes") as? Data{
+            let jsonDecoder = JSONDecoder()
+            
+            do{
+                allnotes = try jsonDecoder.decode([String].self, from: savednote as Data)
+            } catch {
+                print("unable to load each note")
+            }
+        }
+        
     }
     
     @objc func reloadpage(){
-        tableview.reloadData()
+        
+        let defaults = UserDefaults.standard
+        
+        if let savedNotes = defaults.object(forKey: "allnotesdvc") as? Data{
+            let jsonDecoder = JSONDecoder()
+            
+            do{
+                note = try jsonDecoder.decode(String.self, from: savedNotes as Data)
+            } catch {
+                print("unable to load each note")
+            }
+            if isNoteSaved == false{
+                allnotes.append(note)
+                isNoteSaved = true
+            }
+            //
+            
+//            save()
+            print(allnotes)
+        }
     }
     
-//    func save (){
-//        let jsonEncoder = JSONEncoder()
-//
-//        if let savedData = try? jsonEncoder.encode(allnotes){
-//            let defaults = UserDefaults.standard
-//            defaults.set(savedData, forKey: "allNotes")
-//        }else{
-//            print("unable to save")
-//        }
-//    }
-//
+    func save (){
+
+        let jsonEncoder = JSONEncoder()
+
+        if let savedData = try? jsonEncoder.encode(allnotes){
+            let defaults = UserDefaults.standard
+            defaults.set(savedData, forKey: "allNotes")
+        }else{
+            print("unable to save")
+        }
+
+    }
+    
     
     @objc func addNotes(){
         
+        isNoteSaved = false
         //when user select addNotes, go into detail view controller
         if let vc = storyboard?.instantiateViewController(identifier: "detail") as? DetailViewController {
             navigationController?.pushViewController(vc, animated: true)
@@ -120,27 +133,13 @@ class ViewController: UIViewController, UITableViewDelegate, UISearchBarDelegate
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        
-        print(allnotes.count)
         return allnotes.count
     }
     
-    
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        
         let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
-
-        allnotes[indexPath.row].detail = eachnoteString
-        
-        print(eachnoteString)
-        // put into cell.textlabel.text
-        cell.textLabel?.text = allnotes[indexPath.row].detail
-        
-        print(allnotes)
-        
-//        save()
-        
-        tableView.reloadData()
-        
+        cell.textLabel?.text = allnotes[indexPath.row]
         return cell
         
     }
@@ -151,6 +150,12 @@ class ViewController: UIViewController, UITableViewDelegate, UISearchBarDelegate
     //    }
     
     
-    
+    func resetDefaults() {
+        let defaults = UserDefaults.standard
+        let dictionary = defaults.dictionaryRepresentation()
+        dictionary.keys.forEach { key in
+            defaults.removeObject(forKey: key)
+        }
+    }
 }
 

@@ -8,16 +8,9 @@
 
 import UIKit
 
-class allNotes: NSObject, Codable{
-    var notes: [eachNote]
-    
-    init(notes: [eachNote]) {
-        self.notes = allNotes
-    }
-}
-
 
 class eachNote: NSObject, Codable {
+    
     var detail: String
     
     init(detail: String){

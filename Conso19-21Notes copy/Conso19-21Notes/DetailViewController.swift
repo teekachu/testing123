@@ -12,7 +12,7 @@ class DetailViewController: UIViewController  {
     
     @IBOutlet var detailNotes: UITextView!
     
-    var notesWritten: String = ""
+    var notedetail: String?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -31,17 +31,26 @@ class DetailViewController: UIViewController  {
     @objc func saveNotes(){
         
         // pull texts into notesWritten
-        notesWritten = detailNotes.text
         
-        // saving into userDefault as "noteswritten" which is a string
-        let jsonencoder = JSONEncoder()
-        if let savednotes = try? jsonencoder.encode(notesWritten){
-            UserDefaults.standard.set(savednotes, forKey: "noteswritten")
+        if let notesWritten = detailNotes.text{
+            notedetail = notesWritten
+            print(notedetail ?? "no value" )
         }
         
+        // saving into userDefault as string
         
+        let jsonencoder = JSONEncoder()
         
-        print(notesWritten)
+        if let savednote = try? jsonencoder.encode(notedetail){
+            UserDefaults.standard.set(savednote, forKey: "allnotesdvc")
+        }
+        
+        if let vc = storyboard?.instantiateViewController(withIdentifier: "main") as? ViewController{
+            vc.reloadpage()
+            
+            //** what the fffffffff
+            vc.tableview.reloadData()
+        }
         
     }
     
