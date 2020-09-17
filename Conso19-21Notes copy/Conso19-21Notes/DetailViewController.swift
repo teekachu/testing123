@@ -45,17 +45,15 @@ class DetailViewController: UIViewController  {
             UserDefaults.standard.set(savednote, forKey: "allnotesdvc")
         }
         
-        if let vc = storyboard?.instantiateViewController(withIdentifier: "main") as? ViewController{
-            vc.reloadpage()
-            
-            //** what the fffffffff
-            vc.tableview.reloadData()
-        }
+//        if let vc = storyboard?.instantiateViewController(withIdentifier: "main") as? ViewController{
+//            vc.reloadpage()
+//        }
         
     }
     
     
     @objc func shareNotes(){
+        
         //todo: share notes via social media through UIActivityViewController
     }
     

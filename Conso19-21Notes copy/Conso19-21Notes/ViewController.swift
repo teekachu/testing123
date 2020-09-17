@@ -29,6 +29,8 @@ class ViewController: UIViewController, UITableViewDelegate, UISearchBarDelegate
         tableview.dataSource = self
         //BUTTONS:
         
+        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .refresh, target: self, action: #selector(reloadpage))
+        
         //todo: find the eclipsis button?
         
         navigationController?.isToolbarHidden = false
@@ -85,6 +87,11 @@ class ViewController: UIViewController, UITableViewDelegate, UISearchBarDelegate
         
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        
+        tableview.reloadData()
+    }
+    
     @objc func reloadpage(){
         
         let defaults = UserDefaults.standard
@@ -101,24 +108,25 @@ class ViewController: UIViewController, UITableViewDelegate, UISearchBarDelegate
                 allnotes.append(note)
                 isNoteSaved = true
             }
-            //
             
-//            save()
+            tableview.reloadData()
+            save()
+            
             print(allnotes)
         }
     }
     
     func save (){
-
+        
         let jsonEncoder = JSONEncoder()
-
+        
         if let savedData = try? jsonEncoder.encode(allnotes){
             let defaults = UserDefaults.standard
             defaults.set(savedData, forKey: "allNotes")
         }else{
             print("unable to save")
         }
-
+        
     }
     
     
